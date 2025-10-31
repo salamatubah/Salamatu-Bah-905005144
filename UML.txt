@@ -1,0 +1,137 @@
+Library Management System - UML Class Diagram
+=============================================
+
+This is a text-based representation of the UML class diagram for the Library Management System.
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                                Library Management System                        │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                                    Book                                        │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ - isbn: str                                                                    │
+│ - title: str                                                                   │
+│ - author: str                                                                  │
+│ - genre: str                                                                   │
+│ - total_copies: int                                                            │
+│ - available_copies: int                                                        │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ + __init__(isbn: str, title: str, author: str, genre: str, total_copies: int) │
+│ + __str__() -> str                                                             │
+│ + __repr__() -> str                                                            │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                                      │
+                                                      │
+                                                      │ 1..*
+                                                      │
+                                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                                   Member                                       │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ - member_id: str                                                               │
+│ - name: str                                                                    │
+│ - email: str                                                                   │
+│ - borrowed_books: List[str]                                                    │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ + __init__(member_id: str, name: str, email: str)                             │
+│ + _is_valid_email(email: str) -> bool                                          │
+│ + __str__() -> str                                                             │
+│ + __repr__() -> str                                                            │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                                      │
+                                                      │
+                                                      │ 0..*
+                                                      │
+                                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                                   Library                                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ - books: Dict[str, Book]                                                       │
+│ - members: List[Member]                                                        │
+│ - genres: Tuple[str, ...]                                                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ + __init__()                                                                   │
+│ + add_book(isbn: str, title: str, author: str, genre: str, total_copies: int) │
+│   -> bool                                                                      │
+│ + add_member(member_id: str, name: str, email: str) -> bool                   │
+│ + search_books(query: str) -> List[Book]                                       │
+│ + update_book(isbn: str, **kwargs) -> bool                                    │
+│ + update_member(member_id: str, **kwargs) -> bool                             │
+│ + delete_book(isbn: str) -> bool                                               │
+│ + delete_member(member_id: str) -> bool                                        │
+│ + borrow_book(member_id: str, isbn: str) -> bool                              │
+│ + return_book(member_id: str, isbn: str) -> bool                              │
+│ + _find_member_by_id(member_id: str) -> Optional[Member]                      │
+│ + get_library_status() -> Dict                                                 │
+│ + list_all_books() -> List[Book]                                               │
+│ + list_all_members() -> List[Member]                                           │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+Relationships:
+==============
+
+1. Library contains 0..* Book objects (Dictionary: ISBN → Book)
+   - One-to-many relationship
+   - Books are stored in a dictionary for O(1) lookup by ISBN
+
+2. Library contains 0..* Member objects (List of Members)
+   - One-to-many relationship
+   - Members are stored in a list for sequential access
+
+3. Member borrows 0..3 Book objects (List of ISBNs)
+   - Many-to-many relationship with constraints
+   - Maximum 3 books per member
+   - Stored as list of ISBN strings for efficiency
+
+Data Structure Choices:
+======================
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              Data Structures                                   │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│ 1. Dictionary (books):                                                         │
+│    - Key: ISBN (str)                                                           │
+│    - Value: Book object                                                        │
+│    - Purpose: O(1) lookup for book operations                                  │
+│    - Example: {"978-1234567890": Book(...), "978-0987654321": Book(...)}      │
+│                                                                                 │
+│ 2. List (members):                                                             │
+│    - Elements: Member objects                                                  │
+│    - Purpose: Sequential access, order preservation                            │
+│    - Example: [Member("M001", "Alice", "alice@email.com"), ...]               │
+│                                                                                 │
+│ 3. Tuple (genres):                                                             │
+│    - Elements: Valid genre strings                                             │
+│    - Purpose: Immutable, fixed set of valid values                             │
+│    - Example: ("Fiction", "Non-Fiction", "Sci-Fi", "Mystery", ...)            │
+│                                                                                 │
+│ 4. List (borrowed_books in Member):                                            │
+│    - Elements: ISBN strings                                                    │
+│    - Purpose: Track which books a member has borrowed                          │
+│    - Example: ["978-1234567890", "978-0987654321"]                            │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+Key Design Principles:
+=====================
+
+1. Encapsulation: Each class encapsulates its own data and methods
+2. Single Responsibility: Each class has a clear, focused purpose
+3. Data Integrity: Validation ensures data consistency
+4. Performance: Appropriate data structures for expected operations
+5. Extensibility: Easy to add new features or modify existing ones
+
+Error Handling Strategy:
+=======================
+
+- All methods that can fail raise ValueError with descriptive messages
+- Input validation at class constructors and method boundaries
+- Business rule enforcement (borrowing limits, deletion constraints)
+- Graceful handling of edge cases and invalid operations
+
+This design provides a robust, maintainable, and efficient library management system
+that follows object-oriented principles and Python best practices.
+
+
